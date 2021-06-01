@@ -56,46 +56,94 @@ class Column
 
     def requestElevator(_floor, _direction)
         elevator =  self.findElevator(_floor, _direction)
+        elevator.move()
+ 
+        elevator.door.status = "opened"
+        p "The door is #{elevator.door.status}"
+        elevator.door.status = "closed"
+        p "The door is #{elevator.door.status}"
+    
+
     end
 
     def findElevator(requestedFloor, requestedDirection)
-        bestElevatorInformation = {
-            bestElevator: 0,
-            bestScore: 5,
-            referenceGap: 10000000,
-        }
 
         
+        if @status == "online"
+            @elevatorsList.each do |elevator|   
+                if elevator.currentFloor == requestedFloor
+                    elevator.floorRequestList.push(requestedFloor)
+                    @status = 'busy'
+                end    
+            end
+        end
+        if @status == "online"
+            @elevatorsList.each do |elevator|   
+                if elevator.currentFloor - requestedFloor >= -1 && elevator.currentFloor - requestedFloor <= 1
+                    elevator.floorRequestList.push(requestedFloor)
+                    @status = 'busy'
+                end      
+            end
+        end
+        if @status == "online"
+            @elevatorsList.each do |elevator|   
+                if elevator.currentFloor - requestedFloor > -2 && elevator.currentFloor - requestedFloor < 2
+                    elevator.floorRequestList.push(requestedFloor)
+                    @status = 'busy'
+                    break
+                end    
+            end
+        end
+        if @status == "online"
+            @elevatorsList.each do |elevator|   
+                if elevator.currentFloor - requestedFloor > -3 && elevator.currentFloor - requestedFloor < 3
+                    elevator.floorRequestList.push(requestedFloor)
+                    @status = 'busy'
+                end  
+            end
+        end
+        if @status == "online"
+            @elevatorsList.each do |elevator|   
+                if elevator.currentFloor - requestedFloor > -4 && elevator.currentFloor - requestedFloor < 4
+                    elevator.floorRequestList.push(requestedFloor)
+                    @status = 'busy'
+                end  
+            end
+        end
+        if @status == "online"
+            @elevatorsList.each do |elevator|   
+                if elevator.currentFloor - requestedFloor > -5 && elevator.currentFloor - requestedFloor < 5
+                    elevator.floorRequestList.push(requestedFloor)
+                    @status = 'busy'
+                end 
+            end
+        end
+        if @status == "online"
+            @elevatorsList.each do |elevator|   
+                if elevator.currentFloor - requestedFloor > -10 && elevator.currentFloor - requestedFloor < 10
+                    elevator.floorRequestList.push(requestedFloor)
+                    @status = 'busy'
+                end  
+            end
+        end
+        if @status == "online"
+            @elevatorsList.each do |elevator|   
+                if elevator.currentFloor - requestedFloor > -20 && elevator.currentFloor - requestedFloor < 20
+                    elevator.floorRequestList.push(requestedFloor)
+                    @status = 'busy'
+                end 
+            end
+        end
 
-        @elevatorsList.each {
-            |elevator| 
-            puts elevator
-            if requestedFloor == elevator.currentFloor && elevator.status == 'stopped' && requestedDirection == elevator.direction
-                bestElevatorInformations = self.checkIfElevatorIsBetter(1, elevator, bestElevatorInformations, requestedFloor)
-            elsif requestedFloor > elevator.currentFloor && elevator.direction == 'up' && requestedDirection == elevator.direction
-                bestElevatorInformations = self.checkIfElevatorIsBetter(2, elevator, bestElevatorInformations, requestedFloor)
-                
-            elsif requestedFloor < elevator.currentFloor && elevator.direction == 'down' && requestedDirection == elevator.direction   
-                bestElevatorInformations = self.checkIfElevatorIsBetter(2, elevator, bestElevatorInformations, requestedFloor)
-                
-            elsif elevator.status == 'idle' 
-                bestElevatorInformations = self.checkIfElevatorIsBetter(3, elevator, bestElevatorInformations, requestedFloor)
-                
-            else 
-                bestElevatorInformations = self.checkIfElevatorIsBetter(4, elevator, bestElevatorInformations, requestedFloor)
-            end    
-            return bestElevatorInformations.bestElevator
-        }
- 
+        @elevatorsList.each do |elevator|
+            if elevator.floorRequestList.length > 0
+                return elevator
+            end
+        end
 
     end
 
-    def checkIfElevatorIsBetter(scoreToCheck, newElevator, bestElevatorInformations, floor)
-       
-       
-        puts "hello"
-
-    end
+   
 
 end
 
@@ -105,11 +153,16 @@ class Elevator
         @ID = _id
         @status = "idle"
         @amountOfFloors = _amountOfFloors
-        @direction = "null"
+        @direction = "stoped"
         @currentFloor = 1
         @door = Door.new(_id)
         @floorRequestButtonsList = []
         @floorRequestList = []
+
+        self.createFloorRequestButtons(_amountOfFloors)
+
+
+
 
     end
 
@@ -122,8 +175,57 @@ class Elevator
     attr_accessor :floorRequestButtonsList
     attr_accessor :floorRequestList
 
+    def createFloorRequestButtons(_amountOfFloors)
+        buttonFloor = 1
+        i = 0
+        floorRequestButtonID = 0
+        begin 
+            i += 1
+            floorRequestButton = FloorRequestButton.new(floorRequestButtonID, buttonFloor)
+            self.floorRequestButtonsList.push(floorRequestButton)
+            buttonFloor += 1
+            floorRequestButtonID += 1
+        end until i >= _amountOfFloors
+    end
+
+    def requestedFloor(floor)
+        self.floorRequestList.push(floor)
+        self.move()
+        self.door.status = "opened"
+        p "The door is #{self.door.status}"
+        self.door.status = "closed"
+        p "The door is #{self.door.status}"
+        
+    end
+        
+    
+
+    def move()
+        while self.floorRequestList.length > 0 do
+            destination = self.floorRequestList[0]
+            self.status = "moving"
+            if self.currentFloor < destination
+                self.direction = "up"
+                while self.currentFloor < destination do
+                    self.currentFloor = self.currentFloor + 1
+                    p "Elevator ##{self.ID} is now at floor #{self.currentFloor}"
+                end
+            elsif self.currentFloor > destination
+                self.direction = "down"
+                while self.currentFloor > destination do
+                    self.currentFloor =  self.currentFloor - 1
+                    p "Elevator ##{self.ID} is now at floor #{self.currentFloor}"
+                end
+            end
+            self.status = "stopped"
+            self.floorRequestList.shift()
+        end
+        self.status = "idle"
+     
+    end
 end
 
+   
 
 class CallButton 
 
@@ -173,10 +275,18 @@ end
 
 
 column1 = Column.new(1, 20, 2)
+column1.elevatorsList[0].currentFloor = 8
+column1.elevatorsList[1].currentFloor = 15
 
-column1.requestElevator(10, "up")
+
+column1.requestElevator(19, "up")
+column1.elevatorsList[1].requestedFloor(2)
 
 
 
-p column1.inspect
+
+
+
+
+
 
