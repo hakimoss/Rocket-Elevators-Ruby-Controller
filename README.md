@@ -18,7 +18,6 @@ Pour tester différents scénarios, rendez-vous a la ligne (277).
 
 Voilà, vous pouvez lancer l'app.
 
-Pour ce faire, avec Visual Studio Code, ouvrez le terminal et inscrivez node residential_controller.js
 
 
 
